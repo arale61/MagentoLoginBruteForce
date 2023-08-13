@@ -31,6 +31,6 @@ options:
 
 ## Demo
 
-Used is **Ignition** box in **HTB**.
+Created for and used with **Ignition** box in **HTB**.
 
 ![Demo bruteforce ignition](images/magento_bf_demo.gif)
