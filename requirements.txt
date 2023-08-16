@@ -389,6 +389,7 @@ pywerview==0.3.3
 pyxdg==0.28
 PyYAML==6.0
 pyyaml_env_tag==0.1
+readchar==4.0.5
 redis==4.3.4
 regex==2022.10.31
 repoze.lru==0.7
