@@ -15,21 +15,19 @@ This script is tested against:
 ```
 python magentoBf.py -h
 
-usage: magentoBf.py [-h] [-u U] [-w W] [-max_conc_calls MAX_CONC_CALLS] [-t T] url
+usage: magentoBf.py [-h] [-u U] [-w W] [-m M] [-t T] url
 
 Yet another Magento login Bruteforce script.
 
 positional arguments:
-  url                   The url where the Magento login is located
+  url         The url where the Magento login is located
 
 options:
-  -h, --help            show this help message and exit
-  -u U                  The username to try to brute force the password. Defaults to admin
-  -w W                  The password wordlist fullpath to use
-  -max_conc_calls MAX_CONC_CALLS
-                        Number. Max concurrent calls to try to schedulle. Defaults to 200.
-  -t T                  Number. Time to wait between max concurrent blocks. Defaults to 2 secs.
-
+  -h, --help  show this help message and exit
+  -u U        The username to bruteforce the password. Defaults to admin
+  -w W        The password wordlist fullpath to use
+  -m M        Number. Max concurrent calls to try to schedulle. Defaults to 100.
+  -t T        Number. Time to wait between max concurrent blocks. Defaults to 1 secs.
 
 ```
 
