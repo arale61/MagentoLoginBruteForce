@@ -126,7 +126,7 @@ async def do_request(url, username, password):
                         print(f"[V] To Check: {username}: {password}")
             else:
                 print(f"[!] Missed request => {username}: {password}!")
-                print("\t+ Reduce -max_conc_calls parameter or")
+                print("\t+ Reduce -m Max concurrent calls parameter or")
                 print("\t+ Increase -t for waiting more seconds")
                 exit(1)
 
