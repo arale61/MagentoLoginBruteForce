@@ -141,6 +141,8 @@ async def do_request(url, username, password, cookies={}):
                         debug(f"Response code: {response2.status}")
                         debug(f"Response Text: {t}")
             else:
+                debug(f"Response code: {response.status}")
+                debug(f"Response Text: {t}")
                 print(f"[!] Missed request => {username}: {password}!")
                 print("\t+ Reduce -m Max concurrent calls parameter or")
                 print("\t+ Increase -t for waiting more seconds")
