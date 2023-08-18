@@ -10,12 +10,35 @@ This script is tested against:
 - python **3.11.4**
 
 
+## How to install
+
+```bash
+# Clone repository
+git clone https://github.com/arale61/MagentoLoginBruteForce.git
+# get into directory
+cd ./MagentoLoginBruteForce/
+# enable a virtual environment, clean work
+python -m venv .venv
+# activate virtual environment
+source ./.venv/bin/activate
+# install requirements in virtual environment.
+# No collision with native OS python libs.
+python -m pip install -r requirements.txt
+```
+
+Whenever you like to exit the environment, just type:
+
+```bash
+deactivate
+```
+
+
 ## How it works
 
 ```
 python magentoBf.py -h
 
-usage: magentoBf.py [-h] [-u U] [-w W] [-m M] [-t T] url
+usage: magentoBf.py [-h] [-u U] [-w W] [-m M] [-t T] [-d] url
 
 Yet another Magento login Bruteforce script.
 
@@ -28,6 +51,7 @@ options:
   -w W        The password wordlist fullpath to use
   -m M        Number. Max concurrent calls to try to schedulle. Defaults to 100.
   -t T        Number. Time to wait between max concurrent blocks. Defaults to 1 secs.
+  -d          For debugging. Prints out some traces.
 
 ```
 
